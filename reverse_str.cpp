@@ -25,8 +25,10 @@ unsigned int my_strlen(const char *str) {
   if (str == NULL)
      return 0;
 
-  int count = 0;
+  unsigned int count = 0;
 
+  // count will overflow if len of str is
+  // greater than 2^32
   while (str[count] != '\0') {
     count++;
   }
