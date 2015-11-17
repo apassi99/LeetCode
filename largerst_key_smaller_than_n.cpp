@@ -13,50 +13,48 @@ struct node * clear(struct node *);
 struct node * find_largest_smaller_than_n(struct node *, int);
 
 struct node {
-	struct node * left;
-	struct node * right;
-	int data;
+  struct node * left;
+  struct node * right;
+  int data;
 };
 
 int main() {
-	struct node * root = NULL;
+  struct node * root = NULL;
 
-	root = insert(root, 100);
-	root = insert(root, 50);
-	root = insert(root, 75);
-	root = insert(root, 25);
-	root = insert(root, 150);
+  root = insert(root, 100);
+  root = insert(root, 50);
+  root = insert(root, 75);
+  root = insert(root, 25);
+  root = insert(root, 150);
 
-	struct node * n = find_largest_smaller_than_n(root, 100);
-	std::cout << n->data << "\n";
+  struct node * n = find_largest_smaller_than_n(root, 100);
+  std::cout << n->data << "\n";
 
-	n = find_largest_smaller_than_n(root, 60);
-	std::cout << n->data << "\n";
+  n = find_largest_smaller_than_n(root, 60);
+  std::cout << n->data << "\n";
 
-	
-	n = find_largest_smaller_than_n(root, 20);
+  n = find_largest_smaller_than_n(root, 20);
+  std::cout << n << "\n";
 
-        std::cout << n << "\n";
-
-	root = clear(root);
+  root = clear(root);
 }
 
 struct node * find_largest_smaller_than_n(struct node * root, int data) {
-	if (!root)
-		return root;
+  if (!root)
+    return root;
 
-	struct node * max_node = NULL;
+  struct node * max_node = NULL;
 
-	while (root) {
-		if (root->data < data) {
-			max_node = root;
-			root = root->right;
-		} else {
-			root = root->left;
-		}
-	}
+  while (root) {
+    if (root->data < data) {
+      max_node = root;
+      root = root->right;
+    } else {
+      root = root->left;
+    }
+  }
 
-	return max_node;
+  return max_node;
 }
 
 /** 
@@ -69,46 +67,46 @@ struct node * find_largest_smaller_than_n(struct node * root, int data) {
  *	Pointer to the node.
  */
 struct node * node_init(int data, struct node *l, struct node *r) {
-	struct node * n = new struct node;
-	n->data = data;
-	n->left = l;
-	n->right = r;
-	return n;
+  struct node * n = new struct node;
+  n->data = data;
+  n->left = l;
+  n->right = r;
+  return n;
 }
 
 /* Inserts a data element in the BST */
 struct node * insert(struct node * root, int data) {
-	if (!root) {
-		root = node_init(data, NULL, NULL);
-		return root;
-	}
+  if (!root) {
+    root = node_init(data, NULL, NULL);
+    return root;
+  }
 
-	// Not allowing duplicates
-	if (root->data == data) {
-		return root;
-	}
+  // Not allowing duplicates
+  if (root->data == data) {
+    return root;
+  }
 
-	if (root->data > data) {
-		root->left = insert(root->left, data);
-	} else {
-		root->right = insert(root->right, data);
-	}
+  if (root->data > data) {
+    root->left = insert(root->left, data);
+  } else {
+    root->right = insert(root->right, data);
+  }
 
-        return root;
+  return root;
 }
 
 /* Remove all the elements in the BST */
 struct node * clear(struct node * root) {
-	if (!root)
-		return root;
+  if (!root)
+    return root;
 
-	if (!root->left && !root->right) {
-		free(root);
-	 	return NULL;
-	}
+  if (!root->left && !root->right) {
+    free(root);
+    return NULL;
+  }
 
-	root->left = clear(root->left);
-	root->right = clear(root->right);
-	free(root);
-        return NULL;
+  root->left = clear(root->left);
+  root->right = clear(root->right);
+  free(root);
+  return NULL;
 }
