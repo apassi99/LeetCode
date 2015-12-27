@@ -25,7 +25,7 @@ bool is_rotation(const char* str1, const char* str2) {
   if (len1 != len2)
     return false;
 
-  char * new_str = (char *) malloc( (len1 + len1 + 1 ) * sizeof(char *) );
+  char * new_str = (char *) malloc( (len1 + len1 + 1 ) * sizeof(char) );
   memcpy(new_str, str1, len1);
   memcpy(new_str + len1, str1, len1 + 1);
 
