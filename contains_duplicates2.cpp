@@ -31,7 +31,7 @@ int main() {
     // Result False
     cout << containsNearbyDuplicate(list1, 3) << endl;
 
-    // Result False
+    // Result True
     cout << containsNearbyDuplicate(list1, 4) << endl;
 
     return 0;
