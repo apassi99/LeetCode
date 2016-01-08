@@ -23,7 +23,7 @@ int main() {
     cout << containsNearbyDuplicate(list, 4) << endl;
 
     // Result False
-    cout << containsNearbyDuplicate(list, 4) << endl;
+    cout << containsNearbyDuplicate(list, 3) << endl;
 
     int myints1[] = {0, 1, 2, 3, 0, 4, 5, 2, 3};
     vector<int> list1 (myints1, myints1 + sizeof(myints1) / sizeof(int) );
@@ -38,26 +38,28 @@ int main() {
 }
 
 bool containsNearbyDuplicate(vector<int>& nums, int k) {
-
     if (k <= 0)
         return false;
-
+        
     if (k >= nums.size())
         k = nums.size() - 1;
             
-    std::map<int, vector<int> > valToIndex;
+    std::map<int, int> valToIndex;
         
     for (int i = 0; i < nums.size(); i++) {
         int val = nums[i];
-        valToIndex[val].push_back(i);
-        vector<int> list = valToIndex[val];
             
-        if (list.size() > 1) {
-            if (i - list[list.size()-2] <= k) {
+        try {
+            int lastIndex = valToIndex.at(val);
+
+            if (i - lastIndex <= k)
                 return true;
-            }
+            else
+                valToIndex[val] = i;
+        } catch (const std::out_of_range& oor) {
+            valToIndex[val] = i;
         }
     }
-        
+
     return false;
 }
