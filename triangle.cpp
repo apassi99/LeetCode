@@ -16,6 +16,10 @@ public:
         return find_path(triangle, 0, 0);
     }
     
+private:
+
+    map<pair<int,int>, int> mymap;
+    
     int find_path(vector<vector<int>>& triangle, int i, int j) {
         
         if (i >= triangle.size() || j >= triangle[i].size()) {
@@ -31,18 +35,16 @@ public:
         
         int minleft = 0;
         int minright = 0;
- 
-	/*Don't really need the following checks. As it slows down execution time */
-       
-        // if (!contains(mymap, left)) {
-        //     minleft = find_path(triangle, left.first, left.second);
-        //     mymap[left] = minleft;
-        // }
         
-        // if (!contains(mymap, right)) {
-        //     minright = find_path(triangle, right.first, right.second);
-        //     mymap[right] = minright;
-        // }
+        if (!contains(left)) {
+            minleft = find_path(triangle, left.first, left.second);
+            mymap[left] = minleft;
+        }
+        
+        if (!contains(right)) {
+            minright = find_path(triangle, right.first, right.second);
+            mymap[right] = minright;
+        }
         
         minleft = mymap[left];
         minright = mymap[right];
@@ -50,9 +52,9 @@ public:
         return triangle[i][j] + min(minleft, minright);
     }
     
-    bool contains(map<pair<int,int>, int> m, pair<int,int> p) {
+    bool contains(pair<int,int> p) {
         try {
-            m.at(p);
+            mymap.at(p);
             return true;
         } catch (const std::out_of_range& oor) {
             return false;
@@ -73,6 +75,4 @@ public:
         return child;
     }
 
-private:
-    map<pair<int,int>, int> mymap;
 };
