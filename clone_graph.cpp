@@ -62,11 +62,7 @@ private:
             UndirectedGraphNode * n =   ( contains(oldToNewMap, o) ) ? (*oldToNewMap)[o] :
                                         new UndirectedGraphNode(o->label);
             
-            if (n != newNode) {
-                newNode->neighbors.push_back(n);
-            } else {
-                n->neighbors.push_back(newNode);
-            }
+            newNode->neighbors.push_back(n);
             
             cloneGraphHelper(o, n, oldToNewMap);
         }
