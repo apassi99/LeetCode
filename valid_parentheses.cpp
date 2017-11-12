@@ -44,6 +44,7 @@ public:
         returnVal = returnVal && (openBracket->empty());
         
         delete openBracket;
+        delete closeBracket;
         return returnVal;
     }
 };
