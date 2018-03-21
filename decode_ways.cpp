@@ -3,6 +3,7 @@ public:
     int numDecodings(string s) {
         map<int, int> * memo = new map<int, int>();
         int result = numDecodingsHelper(s, 0, *memo);
+        delete memo;
         return (result != -1) ? result : 0;
     }
 
