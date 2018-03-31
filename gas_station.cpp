@@ -8,13 +8,12 @@ public:
         bool completeCircle = true;
         
         while(i < numGasStations) {
-            j = nextGasStation;
+            j = i;
             gasRemaining = 0;
             completeCircle = true;
-            startIndex = nextGasStation;
+            startIndex = i;
             do {
                 gasRemaining += gas[j];
-                nextGasStation++;
                 i++;
                 
                 if (gasRemaining < cost[j]) {
