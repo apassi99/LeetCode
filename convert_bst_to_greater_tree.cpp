@@ -10,38 +10,21 @@
 class Solution {
 public:
     TreeNode* convertBST(TreeNode* root) {
-        
-        if (!root) {
-            return root;
-        }
-        
-        int sum = findSum(root);
-        convertBST_helper(root, &sum);
+        int sum = 0;
+        convertBSTHelper(root, sum);
         return root;
     }
     
 private:
     
-    int findSum(TreeNode *root) {
-        
-        if (!root)
-            return 0;
-        
-        return root->val + findSum(root->left) + findSum(root->right);
-    }
-    
-    void convertBST_helper(TreeNode* root, int * sum) {
-        
-        if (!root) {
+    void convertBSTHelper(TreeNode * n, int &sum) {
+        if (!n) {
             return;
         }
         
-        convertBST_helper(root->left, sum);
-        
-        *sum = *sum - root->val;
-        root->val = root->val + *sum;
-        
-        convertBST_helper(root->right, sum);
-
+        convertBSTHelper(n->right, sum);
+        sum = n->val + sum;
+        n->val = sum;
+        convertBSTHelper(n->left, sum);
     }
 };
