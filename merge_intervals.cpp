@@ -10,41 +10,25 @@
 class Solution {
 public:
     vector<Interval> merge(vector<Interval>& intervals) {
-
-        std::sort(intervals.begin(), intervals.end(), customCompare);
-        vector<Interval> result;
-
-        int i = 0;
-        int len = intervals.size();
         
-        if (len >= 1) {
-            Interval val(intervals[i].start, intervals[i].end);
-            result.push_back(val);
-            i++;
-        }
-
-        while (i < len) {
-            if (intervals[i].start <= result.back().end) {
-                result[result.size()-1]. end = max(intervals[i].end, result.back().end);
+        vector<Interval> result;
+        
+        std::sort(intervals.begin(), intervals.end(), comp);
+        
+        for (int i = 0; i < intervals.size(); i++) {
+            if (result.empty() || result.back().end < intervals[i].start) {
+                result.push_back(intervals[i]);
             } else {
-                Interval val(intervals[i].start, intervals[i].end);
-                result.push_back(val);
+                result.back().end = max(intervals[i].end, result.back().end);
             }
-            i++;
         }
-
+        
         return result;
     }
     
 private:
     
-    static bool customCompare(Interval i1, Interval i2) {
-        if (i1.start < i2.start) {
-            return true;
-        } else if (i1.start > i2.start) {
-            return false;
-        } else {
-            return i1.end < i2.end;
-        }
+    static bool comp(const Interval &p1, const Interval &p2) {
+        return p1.start < p2.start;
     }
 };
