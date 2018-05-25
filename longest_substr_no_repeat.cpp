@@ -2,10 +2,6 @@ class Solution {
 public:
     int lengthOfLongestSubstring(string s) {
 
-        if (s.size() <= 1) {
-            return s.size();
-        }
-
         int result = 0, idx = 0, count = 0, lastIdx = -1;
         map<char, int> indexMap;
 
