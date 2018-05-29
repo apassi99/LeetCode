@@ -1,35 +1,24 @@
 class NumArray {
 public:
-    NumArray(vector<int> &nums) {
-        this->nums = nums;
-    }
-
-    int sumRange(int i, int j) {
-        if (i > j | j >= nums.size()) {
-            return 0;
+    NumArray(vector<int> nums) {
+        int sum = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            sum += nums[i];
+            m_Sum.push_back(sum);
         }
-        
-        return findSum(j) - findSum(i-1);
     }
     
-    int findSum(int i) {
-        if (i >= nums.size() | i < 0)
-            return 0;
-        try {
-            return mymap.at(i);
-        } catch (const std::out_of_range& oor) {
-            int sum = nums[i] + findSum(i-1);
-            mymap[i] = sum;
-            return sum;
-        }
+    int sumRange(int i, int j) {
+        int temp = (i == 0) ? 0 : m_Sum[i-1];
+        return m_Sum[j] - temp;
     }
+    
 private:
-    vector<int> nums;
-    map<int, int> mymap;
+    
+    vector<int> m_Sum;
 };
-
-
-// Your NumArray object will be instantiated and called as such:
-// NumArray numArray(nums);
-// numArray.sumRange(0, 1);
-// numArray.sumRange(1, 2);
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(i,j);
+ */
