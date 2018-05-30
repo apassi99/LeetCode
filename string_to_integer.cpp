@@ -17,7 +17,6 @@ public:
         while (isNum(str[idx])) {
 
             if (result > ((INT_MAX - str[idx] + '0') / 10) ) {
-                cout << "e. " << result << endl;
                 return (signFactor == 1) ? INT_MAX : INT_MIN;
             }
 
