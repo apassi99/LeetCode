@@ -71,7 +71,7 @@ private:
         trie_node * cur = n;
         for (int i = idx; i < word.size(); i++) {
             if (cur->children[word[i]-'a'] == NULL) {
-                cur->children[word[i]-'a'] = node_init();
+                return false;
             }
             cur = cur->children[word[i]-'a'];
         }
