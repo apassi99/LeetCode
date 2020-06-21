@@ -1,77 +1,76 @@
+typedef unordered_map<int, unordered_set<int>> Graph;
+
 class Solution {
 public:
-    vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
+    vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
         
+        Graph graph;
         vector<int> result;
+        unordered_set<int> visitedNodes;
+        unordered_set<int> visitingNodes;
         
-        if (numCourses <= 0) {
-            return result;
-        }
-        
-        vector<vector<int>> G;
-
-        int visitedNodes[numCourses];
-        int visitingNodes[numCourses];
-        
-        for (int i = 0; i < numCourses; i++) {
-            visitedNodes[i] = 0;
-            visitingNodes[i] = 0;
-        }
-
-        for (int i= 0; i < numCourses; i++) {
-            vector<int> temp;
-            for (int j = 0; j < numCourses; j++) {
-                temp.push_back(0);
-            }
-            G.push_back(temp);
-        }
-        
-        for (int i = 0; i < prerequisites.size(); i++) {
-            G[prerequisites[i].second][prerequisites[i].first] = 1;
-        }
-
-        list<int> stack;
-        
-        for (int i = 0; i < numCourses; i++) {
+        for (size_t idx = 0; idx < prerequisites.size(); idx++)
+        {
+            int course1 = prerequisites[idx][0];
+            int course2 = prerequisites[idx][1];
             
-            if (visitedNodes[i] != 1) {
-                if (findOrderHelper(G, stack, visitedNodes, visitingNodes, i)) {
-                    return result;
-                }
+            if (graph.find(course1) == graph.end())
+            {
+                unordered_set<int> temp;
+                graph[course1] = temp;
+            }
+            
+            graph[course1].insert(course2);
+        }
+        
+        for (int i = 0; i < numCourses; i++)
+        {
+            bool dfsResult = dfs(graph, i, visitedNodes, visitingNodes, result);
+            
+            if (!dfsResult)
+            {
+                result.clear();
+                return result;
             }
         }
         
-        while (!stack.empty()) {
-            result.push_back(stack.back());
-            stack.pop_back();
-        }
-
-        //result.erase(result.begin());
         return result;
     }
     
 private:
     
-    bool findOrderHelper(vector<vector<int>> &G, list<int> &stack,
-                         int * visitedNodes, int *visitingNodes, int node) {
-
-        if (visitingNodes[node] == 1) {
+    bool dfs(Graph &graph, int currentNode,
+             unordered_set<int> &visitedNodes, 
+             unordered_set<int> &visitingNodes,
+             vector<int> &result)
+    {
+        
+        if (visitingNodes.find(currentNode) != visitingNodes.end())
+        {
+            return false;
+        }
+        
+        if (visitedNodes.find(currentNode) != visitedNodes.end())
+        {
             return true;
         }
-
-        visitingNodes[node] = 1;
         
-        for (int i = 0; i < G.size(); i++) {
-            if (G[node][i] == 1 && visitedNodes[i] != 1) {
-                if (findOrderHelper(G, stack, visitedNodes, visitingNodes, i)) {
-                    return true;
-                }
-            }
+        visitingNodes.insert(currentNode);
+        
+        // Visit neighbors
+        unordered_set<int>::iterator it;
+        for(it = graph[currentNode].begin(); it != graph[currentNode].end(); ++it)
+        {
+            bool dfsResult = dfs(graph, *it, visitedNodes, visitingNodes, result);
+            
+            if (!dfsResult)
+                return false;
         }
         
-        visitingNodes[node] = 0;
-        visitedNodes[node] = 1;
-        stack.push_back(node);
-        return false;
+        visitingNodes.erase(currentNode);
+        visitedNodes.insert(currentNode);
+        result.push_back(currentNode);
+        
+        return true;
     }
 };
