@@ -8,217 +8,105 @@ public:
         }
 
         m_result  = INT_MAX;
+        
+        for (int busNumber = 0; busNumber < routes.size(); busNumber++)
+        {  
+            unordered_set<int> stops (routes[busNumber].begin(), routes[busNumber].end());
+            m_busStopMap[busNumber] = stops;
+        }
 
-        for (int routeNumber = 0; routeNumber < routes.size(); routeNumber++)
+        for (int busNumber = 0; busNumber < routes.size(); busNumber++)
         {   
-            for (int i = 0; i < routes[routeNumber].size(); i++)
+            for (int nextBusNumber = busNumber + 1; nextBusNumber < routes.size(); nextBusNumber++)
             {
-                int busStopNumber = routes[routeNumber][i];
-                
-                for (int j = 0; j < routes[routeNumber].size(); j++)
+                if (intersect(m_busStopMap[busNumber], m_busStopMap[nextBusNumber]))
                 {
-                    if (j == i)
-                    {
-                        continue;
-                    }
-                    
-                    pair<int,int> p = std::make_pair(routes[routeNumber][j], routeNumber);
-                    m_stopGraph[busStopNumber].push_back(p);
+                    m_busGraph[busNumber].insert(nextBusNumber);
+                    m_busGraph[nextBusNumber].insert(busNumber);
                 }
             }
         }
         
-        //rearrange(T);
-        //dfs(S, -1, S, T, 1);
+        unordered_map<int, unordered_set<int>>::iterator it;
+        for (it = m_busStopMap.begin(); it != m_busStopMap.end(); it++)
+        {
+            unordered_set<int> * stops = &it->second;
+            
+            if (stops->find(S) != stops->end())
+            {
+                bfs(it->first, T);
+            }
+        }
         
-        bfs(S, T);
-
-        return (m_result == INT_MAX) ? -1 :  m_result;
-        
+        return (m_result == INT_MAX) ? -1 : m_result;
     }
     
 private:
     
-    struct NodeData
+    void bfs(int startBus, int endStop)
     {
-        int curStop;
-        int curRoute;
-        int prevRoute;
-        int busesTakenSoFar;
-    };
-    
-    void bfs(int startStop, int endStop)
-    {
-        list<NodeData> q;
+        if (m_result == 1)
+        {
+            return;
+        }
+
+        list<int> q;
         
-        NodeData nodeData = {startStop, -1, -1, 1};
+        q.push_back(startBus);
         
-        q.push_back(nodeData);
+        int busesTaken = 0;
         
         while (!q.empty())
         {
             int size = q.size();
             
+            busesTaken++;
+
             for (int i = 0; i < size; i++)
             {
-                NodeData n = q.front();
+                int currentBus = q.front();
                 q.pop_front();
                 
-                //cout << "visiting nod: cS:  " << n.curStop 
-                //     << ",  cR: " << n.curRoute 
-                //     << ",  pR: " << n.prevRoute
-                //     << ",  b:  " << n.busesTakenSoFar << endl;
-                
-                if (n.curStop == endStop)
+                // Current bus stops at endStop
+                if (m_busStopMap[currentBus].find(endStop) !=
+                    m_busStopMap[currentBus].end())
                 {
-                    m_result = min(m_result, n.busesTakenSoFar);
-                    m_costGraph[n.curStop] = 0;
+                    m_result = min(m_result, busesTaken);
                     continue;
                 }
                 
-                if (m_result == 1)
-                {
-                    return;
-                }
-
-                if (m_visitingNodes.find(n.curStop) != m_visitingNodes.end())
+                if (m_visitingNodes.find(currentBus) != m_visitingNodes.end())
                 {
                     continue;
                 }
-
-                if (m_costGraph.find(n.curStop) != m_costGraph.end())
+                
+                m_visitingNodes.insert(currentBus);
+                
+                unordered_set<int>::iterator it;
+                for (it = m_busGraph[currentBus].begin(); it != m_busGraph[currentBus].end(); it++)
                 {
-                    if (n.busesTakenSoFar >= m_costGraph[n.curStop])
-                    {
-                        continue;
-                    }
+                    q.push_back(*it);
                 }
-
-                // Mark node as visiting
-                m_visitingNodes.insert(n.curStop);
-
-                // Mark busses taken to come here
-                m_costGraph[n.curStop] = n.busesTakenSoFar;
-
-                vector<pair<int,int>> nextStops = m_stopGraph[n.curStop];
-
-                for (int i = 0; i < nextStops.size(); i++)
-                {
-                    NodeData nextStopNode;
-                    
-                    int nextStop      = nextStops[i].first;
-                    int nextRoute     = nextStops[i].second;
-                    bool newBusTaken  = (n.curRoute != -1) && (n.curRoute != nextRoute);
-            
-                    if (n.curStop == nextStop)
-                    {
-                        continue;
-                    }
-
-                    nextStopNode.curStop = nextStop;
-                    nextStopNode.curRoute = nextRoute;
-                    nextStopNode.prevRoute = n.curRoute;
-                    nextStopNode.busesTakenSoFar = (newBusTaken) ? n.busesTakenSoFar + 1 : n.busesTakenSoFar;
-
-                    //cout << "Adding route: ";
-                    //cout << "cS:  " << nextStopNode.curStop  <<  ",  "
-                    //     << "cR:  " << nextStopNode.curRoute <<  ",  "
-                    //     << "pR:  " << nextStopNode.prevRoute << ",  "
-                    //     << "b:   " << nextStopNode.busesTakenSoFar << endl;
-                    
-                    q.push_back(nextStopNode);
-                }
-
-                m_visitingNodes.erase(n.curStop);
             }
         }
     }
-
     
-    void dfs(int prevStop, int curRoute, int curStop, int endStop, int busesTakenSoFar)
+    bool intersect(unordered_set<int> &stops1, unordered_set<int> &stops2)
     {
-        
-        if (curStop == endStop)
+        unordered_set<int>::iterator it;
+        for (it = stops1.begin(); it != stops1.end(); it++)
         {
-            m_result = min(m_result, busesTakenSoFar);
-            m_costGraph[curStop] = 0;
-            return;
-        }
-
-        if (m_visitingNodes.find(curStop) != m_visitingNodes.end())
-        {
-            return;
-        }
-
-        if (m_costGraph.find(curStop) != m_costGraph.end())
-        {
-            if (busesTakenSoFar >= m_costGraph[curStop])
+            if (stops2.find(*it) != stops2.end())
             {
-                return;
+                return true;
             }
         }
-
-        // Mark node as visiting
-        m_visitingNodes.insert(curStop);
-
-        // Mark busses taken to come here
-        m_costGraph[curStop] = busesTakenSoFar;
         
-        vector<pair<int,int>> nextStops = m_stopGraph[curStop];
-        
-        for (int i = 0; i < nextStops.size(); i++)
-        {
-            int nextStop      = nextStops[i].first;
-            int nextRoute     = nextStops[i].second;
-            bool newBusTaken  = (curRoute != -1) && (curRoute != nextRoute);
-            
-            if (curStop == nextStop)
-            {
-                continue;
-            }
-            
-            busesTakenSoFar += newBusTaken ? 1 : 0;
-
-            dfs(curStop, nextRoute, nextStop, endStop, busesTakenSoFar);
-
-            busesTakenSoFar -= newBusTaken ? 1 : 0;
-        }
-        
-        m_visitingNodes.erase(curStop);
+        return false;
     }
     
-    // hack for time on dfs
-    void rearrange(int endStop)
-    {
-        unordered_map<int, vector<pair<int,int>>>::iterator it;
-        
-        for (it = m_stopGraph.begin(); it != m_stopGraph.end(); it++)
-        {
-            vector<pair<int,int>> *nextStops = &it->second;
-            
-            if (nextStops->empty())
-            {
-                continue;
-            }
-            
-            int lastNotEndStopIdx = 0;
-            
-            for (int i = 0; i < nextStops->size(); i++)
-            {
-                if ( (*nextStops)[i].second == endStop)
-                {
-                    pair<int,int> p = (*nextStops)[lastNotEndStopIdx];
-                    (*nextStops)[lastNotEndStopIdx] = (*nextStops)[i];
-                    (*nextStops)[i] = p;
-                    lastNotEndStopIdx++;
-                    
-                }
-            }
-        }
-    }
-    
-    unordered_map<int, vector<pair<int,int>>> m_stopGraph; // storing stop connection
-    unordered_map<int, int> m_costGraph; // memo table
+    unordered_map<int, unordered_set<int>> m_busStopMap; // bus -> stops
+    unordered_map<int, unordered_set<int>> m_busGraph; // storing bus connection
     unordered_set<int> m_visitingNodes; // keep track of cycles
     
     int m_result;
