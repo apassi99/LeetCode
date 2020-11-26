@@ -1,37 +1,36 @@
 class Solution {
 public:
     int trap(vector<int>& height) {
-        if (height.size() <= 2) {
-            return 0;
+        
+        int result = 0;
+        
+        vector<int> max_left, max_right;
+        
+        max_left.resize(height.size());
+        max_right.resize(height.size());
+        
+        int maxHeightLeft  = 0;
+        int maxHeightRight = 0;
+        int minHeight      = 0;
+        
+        for (int i = 0; i < height.size(); i++)
+        {            
+            max_left[i]   = maxHeightLeft; 
+            maxHeightLeft = max(height[i], maxHeightLeft);
         }
         
-        int max_elem = -1;
-        
-        int maxLeft[height.size()];
-        int maxRight[height.size()];
-        
-        for (int i = 0; i < height.size(); i++) {
-            maxLeft[i] = max_elem;
-            max_elem = max(max_elem, height[i]);
+        for (int i = height.size() - 1; i >= 0; i--)
+        {
+            max_right[i]   = maxHeightRight;
+            maxHeightRight = max(height[i], maxHeightRight);
         }
         
-        max_elem = -1;
-        
-        for (int i = height.size() - 1; i >= 0; i--) {
-            maxRight[i] = max_elem;
-            max_elem = max(max_elem, height[i]);
+        for (int i = 0; i < height.size(); i++)
+        {
+            minHeight  = min(max_left[i], max_right[i]);
+            result    += (minHeight > height[i]) ? minHeight - height[i]: 0;
         }
         
-        int sum = 0;
-        
-        for (int i = 0; i < height.size(); i++) {
-            int min_elem = min(maxLeft[i], maxRight[i]);
-            
-            if (min_elem != -1 && min_elem > height[i]) {
-                sum = sum + ( min_elem - height[i]);
-            }
-        }
-        
-        return sum;
+        return result;
     }
 };
