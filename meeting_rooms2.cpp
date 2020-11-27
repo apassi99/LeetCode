@@ -1,3 +1,14 @@
+#include <queue>
+
+class mycomparison
+{
+public:
+  bool operator() (const Interval& lhs, const Interval &rhs) const
+  {
+    return lhs.end > rhs.end;
+  }
+};
+
 /**
  * Definition of Interval:
  * classs Interval {
@@ -16,27 +27,34 @@ public:
      * @return: the minimum number of conference rooms required
      */
     int minMeetingRooms(vector<Interval> &intervals) {
-
-        int len = (int) intervals.size();
         
-        sort(intervals.begin(), intervals.end(), compareIntervals);
+        int result = 0;
         
-        priority_queue<int, std::vector<int>, std::greater<int> > endTimes;
-
-        for (int i = 0; i < len; i++) {
-            
-            if (!endTimes.empty() && intervals[i].start >= endTimes.top()) {
-                endTimes.pop();
+        std::sort(intervals.begin(), intervals.end(), compare);
+        
+        priority_queue<Interval, std::vector<Interval>, mycomparison> pq;
+        
+        for (int i = 0; i < intervals.size(); i++)
+        {
+            if (pq.empty() || intervals[i].start < pq.top().end)
+            {
+                pq.push(intervals[i]);
             }
-            endTimes.push(intervals[i].end);
+            else
+            {
+                if (!pq.empty() && intervals[i].start >= pq.top().end)
+                {
+                    pq.pop();
+                }
+                pq.push(intervals[i]);
+            }
         }
         
-        return (int) endTimes.size();
+        return (int) pq.size();
     }
     
-private:
-
-    static bool compareIntervals(const Interval &i1, const Interval &i2) {
-        return i1.start < i2.start;
+    static bool compare(const Interval &lhs, const Interval &rhs)
+    {
+        return lhs.start < rhs.start;
     }
 };
