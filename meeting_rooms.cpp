@@ -21,7 +21,7 @@ public:
         
         for (int i = 1; i < intervals.size(); i++)
         {
-            if (intervals[i-1].end >= intervals[i].start)
+            if (intervals[i-1].end > intervals[i].start)
             {
                 return false;
             }
