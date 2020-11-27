@@ -1,6 +1,6 @@
 /**
  * Definition of Interval:
- * classs Interval {
+ * class Interval {
  *     int start, end;
  *     Interval(int start, int end) {
  *         this->start = start;
@@ -16,26 +16,21 @@ public:
      * @return: if a person could attend all meetings
      */
     bool canAttendMeetings(vector<Interval> &intervals) {
-        // Write your code here
         
-        if (intervals.empty()) {
-            return true;
-        }
-
-        std::sort(intervals.begin(), intervals.end(), Solution::compareIntervals);
+        sort(intervals.begin(), intervals.end(), compare);
         
-        for (int i = 0; i < intervals.size() - 1; i++) {
-            if (intervals[i+1].start < intervals[i].end) {
+        for (int i = 1; i < intervals.size(); i++)
+        {
+            if (intervals[i-1].end >= intervals[i].start)
+            {
                 return false;
             }
         }
-        
         return true;
     }
     
-private:
-
-    static bool compareIntervals(const Interval &i1, const Interval &i2) {
+    static bool compare(const Interval &i1, const Interval &i2)
+    {
         return i1.start < i2.start;
     }
 };
