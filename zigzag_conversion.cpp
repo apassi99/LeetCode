@@ -1,28 +1,32 @@
 class Solution {
 public:
     string convert(string s, int numRows) {
-        if (s.empty() || numRows <= 0 || numRows > s.size()) {
-            return s;
-        }
         
-        int len = s.size();
-        int count = 0;
-        string returnVal = "";
-        bool countDown = true;
-        map<int, string> rowToStrMap;
-
+        int rowNum = 0;
+        int countDir = 1;
+        string result;
+        unordered_map<int, string> rowToStrMap;
         
-        for (int i = 0; i < len; i++) {          
-            rowToStrMap[count] += s[i];
-            count += (numRows == 1) ? 0 : (countDown) ? 1 : -1;
-            countDown = (count == numRows-1 || count == 0) ? !countDown : countDown;
+        for (int i = 0; i < (int) s.size(); i++)
+        {
+            rowToStrMap[rowNum] += s[i];
+            
+            if (numRows == 1)
+                countDir = 0;
+            else if (rowNum == numRows - 1)
+                countDir = -1;
+            else if (rowNum == 0)
+                countDir = 1;
+            
+            rowNum += countDir;
             
         }
         
-        for (int i = 0; i < numRows; i++) {
-            returnVal.append(rowToStrMap[i]);
+        for (int i = 0; i < numRows; i++)
+        {
+            result.append( rowToStrMap[i] );
         }
         
-        return returnVal;
+        return result;
     }
 };
