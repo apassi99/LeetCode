@@ -1,76 +1,90 @@
 class Solution {
 public:
-    int networkDelayTime(vector<vector<int>>& times, int N, int K) {
-        int result = 0;
-        unordered_map<int, vector<pair<int,int>>> G;
+    int networkDelayTime(vector<vector<int>>& times, int n, int k) {
         
-        for (int i = 0; i < times.size(); i++) {
-            int node1 = times[i][0];
-            int node2 = times[i][1];
+        for (int i = 0; i < times.size(); i++)
+        {
+            int src = times[i][0];
+            int dst = times[i][1];
             int weight = times[i][2];
             
-            if (G.find(node1) == G.end()) {
-                vector<pair<int,int>> temp;
-                G[node1] = temp;
-            }
-            
-            G[node1].push_back(make_pair(node2, weight));
+            Edge edge = {dst, weight};
+            m_graph[src].push_back(edge);
         }
         
-        list<int> q;
-        unordered_set<int> visitedNodes;
-        unordered_map<int, int> shortestDistance;
+        vector<int> costs(n, INT_MAX);
         
-        q.push_back(K);
-        shortestDistance[K] = 0;
+        CostData data;
+        data.node   = k;
+        data.cost   = 0;
+        costs[k-1]  = 0;
+
+        m_costQ.push(data);
         
-        while (!q.empty()) {
+        while (!m_costQ.empty())
+        {
             
-            int cur = q.back();
-            q.pop_back();
+            int currentNode     = m_costQ.top().node;
+            int currentNodeCost = m_costQ.top().cost;
             
-            visitedNodes.insert(cur);
+            m_costQ.pop();
             
-            vector<pair<int,int>> neighbors = G[cur];
+            vector<Edge> neighbors = m_graph[currentNode];
             
-            for (int i = 0; i < neighbors.size(); i++) {
-                int neighborNode = neighbors[i].first;
-                int weight       = neighbors[i].second;
+            for (int i = 0; i < neighbors.size(); i++)
+            {
+                Edge edge = neighbors[i];
                 
-                if (shortestDistance.find(neighborNode) != shortestDistance.end()) {
-                    shortestDistance[neighborNode] = min(shortestDistance[neighborNode], weight +
-                                                         shortestDistance[cur]);
-                } else {
-                    shortestDistance[neighborNode] = weight + shortestDistance[cur];
+                if (costs[edge.node-1] > costs[currentNode-1] + edge.weight)
+                {   
+                    costs[edge.node-1] = costs[currentNode-1] + edge.weight;
+                    
+                    CostData cd = {edge.node, costs[edge.node-1]};
+                    m_costQ.push(cd);
                 }
-            }
-            
-            int shortestDist = INT_MAX;
-            int nextNode     = -1;
-            
-            for (int i = 1; i <= N; i++) {
-                if (visitedNodes.find(i) == visitedNodes.end() &&
-                    shortestDistance.find(i) != shortestDistance.end()) {
-                    if (shortestDist > shortestDistance[i]) {
-                        shortestDist = shortestDistance[i];
-                        nextNode = i;
-                    }
-                }
-            }
-            
-            if (nextNode != -1) {
-                q.push_back(nextNode);
             }
         }
         
-        for (int i = 1; i <= N; i++) {
-            if (visitedNodes.find(i) == visitedNodes.end()) {
+        int result = INT_MIN;
+        
+        for (int i = 0; i < n; i++)
+        {
+            if (costs[i] == INT_MAX)
                 return -1;
-            } else {
-                result = max(shortestDistance[i], result);
-            }
+
+            result = max(result, costs[i]);
         }
         
         return result;
+        
     }
+    
+private:
+    
+    struct Edge
+    {
+        int node;
+        int weight;
+    };
+    
+    typedef struct Edge Edge;
+    
+    struct CostData
+    {
+        int node;
+        int cost;
+        
+        bool operator>(const CostData &rhs) const
+        {
+            return cost > rhs.cost;
+        }
+    };
+    
+    typedef struct CostData CostData;
+    
+    
+    unordered_map<int, vector<Edge>> m_graph;
+
+    
+    priority_queue<CostData, vector<CostData>, std::greater<CostData>> m_costQ;
 };
