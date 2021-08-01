@@ -1,52 +1,44 @@
-#include <climits>
-
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
     int maxPathSum(TreeNode* root) {
+        int result = INT_MIN;
         
-        int s1 = 0, s2 = 0;
-        maxPathSumHelper(root, &s1, &s2);
-        return max(s1, s2);
+        helper(root, result);
+        
+        return result;
     }
-    
 private:
-    // s1 -- sum that can be reused
-    // s2 -- sum that can't be reused
-    void maxPathSumHelper(TreeNode * root, int *s1, int *s2) {
+    
+    int helper(TreeNode* root, int &global_max)
+    {
+        if (!root)
+            return 0;
         
-        if (!root) {
-            *s1 = INT_MIN / 2;
-            *s2 = INT_MIN / 2;
-            return;
-        }
-
-        if (!root->left && !root->right) {
-            *s1 = root->val;
-            *s2 = root->val;
-            return;
-        }
+        int left_max  = helper(root->left, global_max);
+        int right_max = helper(root->right, global_max);
         
-        int l_s1 = 0, l_s2 = 0, r_s1 = 0, r_s2 = 0;
+        int returnVal = root->val;
         
-        maxPathSumHelper(root->left, &l_s1, &l_s2);
-        maxPathSumHelper(root->right, &r_s1, &r_s2);
+        returnVal = max(left_max  + root->val, returnVal);
+        returnVal = max(right_max + root->val, returnVal);
         
-        int no_reuse_sum = max(l_s2, r_s2);
-        no_reuse_sum = max(no_reuse_sum, l_s1 + root->val + r_s1);
-        no_reuse_sum = max(no_reuse_sum, l_s1);
-        no_reuse_sum = max(no_reuse_sum, r_s1);
-        *s2 = no_reuse_sum;
-
-        *s1 = max(l_s1 + root->val, r_s1 + root->val);
-        *s1 = max(*s1, root->val);
+        int localMax = left_max + right_max + root->val;
+        
+        global_max = max(localMax, global_max);
+        global_max = max(returnVal, global_max);
+        
+        
+        return returnVal;
     }
 };
